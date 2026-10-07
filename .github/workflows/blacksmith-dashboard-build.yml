@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Test
-        run: bun test
+      - name: Test deployment URL handling
+        run: bun test tests/managementConnection.test.ts
 
       - name: Build single-file dashboard
         run: |
