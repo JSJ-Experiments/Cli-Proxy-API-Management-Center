@@ -17,11 +17,25 @@ export const computeApiUrl = (base: string): string => {
   return `${normalized}${MANAGEMENT_API_PREFIX}`;
 };
 
+export const detectDeploymentPrefix = (pathname: string): string => {
+  const path = (pathname || '').trim();
+  if (!path || path === '/') return '';
+
+  if (/\/management\.html\/?$/i.test(path)) {
+    return path.replace(/\/management\.html\/?$/i, '').replace(/\/+$/g, '');
+  }
+
+  return '';
+};
+
 export const detectApiBaseFromLocation = (): string => {
   try {
-    const { protocol, hostname, port } = window.location;
+    const { protocol, hostname, port, pathname } = window.location;
     const normalizedPort = port ? `:${port}` : '';
-    return normalizeApiBase(`${protocol}//${hostname}${normalizedPort}`);
+    const deploymentPrefix = detectDeploymentPrefix(pathname);
+    return normalizeApiBase(
+      `${protocol}//${hostname}${normalizedPort}${deploymentPrefix}`
+    );
   } catch (error) {
     console.warn('Failed to detect api base from location, fallback to default', error);
     return normalizeApiBase(`http://localhost:${DEFAULT_API_PORT}`);

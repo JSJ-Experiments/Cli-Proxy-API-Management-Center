@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { computeApiUrl, normalizeApiBase } from '../src/utils/connection';
+import {
+  computeApiUrl,
+  detectDeploymentPrefix,
+  normalizeApiBase,
+} from '../src/utils/connection';
 import { resolvePluginAssetURL } from '../src/features/plugins/pluginResources';
 
 describe('v8-only management connections', () => {
@@ -15,6 +19,16 @@ describe('v8-only management connections', () => {
 
   test('does not create a URL for empty input', () => {
     expect(computeApiUrl('  ')).toBe('');
+  });
+
+  test.each([
+    ['/management.html', ''],
+    ['/management.html/', ''],
+    ['/cliproxy/management.html', '/cliproxy'],
+    ['/nested/gateway/management.html', '/nested/gateway'],
+    ['/cliproxy/', ''],
+  ])('detects deployment prefix from dashboard pathname %s', (pathname, expected) => {
+    expect(detectDeploymentPrefix(pathname)).toBe(expected);
   });
 
   test('does not silently adapt a legacy management URL', () => {
